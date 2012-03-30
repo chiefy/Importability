@@ -1,9 +1,10 @@
 {
-  "name": "instapaperexport",
+  "name": "importability",
   "version": "0.0.1",
   "dependencies": {
     "express": "2.5.8",
     "jade": "0.22.0",
-    "everyauth":"0.2.32"
+    "everyauth":"0.2.32",
+    "csv":"0.0.11"
   }
 }
