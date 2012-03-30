@@ -1,7 +1,13 @@
 h1= title
-#auth
-    a(href="/auth/readability") authorize readability
-
-form
-    input(type='file',name='csv_file')
-    input(type='submit',title='upload and import')
+- if(!everyauth.loggedIn)
+  #auth
+    p In order to use Importability you must authorize your Readabilty account:
+    a(href="/auth/readability") Login With Readability
+- else
+    p Upload your exported CSV:
+        form(action='/upload',method='POST',enctype="multipart/form-data")
+            div
+                label(for='csv_file') File:
+                input(type='file',name='csv_file')
+            div
+                input(type='submit',title='upload and import')

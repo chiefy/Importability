@@ -2,7 +2,7 @@
   "name": "instapaperexport",
   "version": "0.0.1",
   "dependencies": {
-    "express": "2.5.0",
+    "express": "2.5.8",
     "jade": "0.22.0",
     "everyauth":"0.2.32"
   }
