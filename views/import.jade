@@ -1,0 +1,11 @@
+h1 Preview Import
+div
+	input(type='submit',value='Import Selected Bookmarks',id='import')
+div#loading(style='display:none')
+	p Importing bookmarks, please wait...
+div#done(style='display:none')
+	p Done importing bookmarks, red items had a problem, yellow items are duplicates
+ul
+	- each link in links
+		li(id="link"+link.id)
+			a(href=link.URL,title=link.Title)=link.Title
