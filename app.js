@@ -13,9 +13,7 @@ var app = module.exports = express.createServer();
 
 everyauth.helpExpress(app);
 
-
-var myURL = "http://node.local:3000",
-    User = { id: 1 };
+var User = { id: 1 };
 // Configuration
 
 var readability_options  = {
@@ -34,7 +32,7 @@ everyauth.readability
   })
   .redirectPath('/')
 
-everyauth.debug = true;  
+everyauth.debug = false;  
 
 app.configure(function(){
   app.set('views', __dirname + '/views');
@@ -83,7 +81,6 @@ app.get('/add/:url',function(req,res) {
         'url': req.params.url
       };
       var callback = function(error,data,apires) {
-        console.log("returned ",apires);
         var resData = { result: -1 };
         res.setHeader("Content-Type", "application/json");
         if(apires.statusCode === 202) {
@@ -119,14 +116,15 @@ app.post('/upload', function(req,res,next) {
       res.redirect('/import');
     })
     .on('error',function(error) {
-      console.log("error parsing csv",error);
+      // do something
     });
-  
+  /*
   console.log(format('\nuploaded %s (%d Kb) to %s as %s'
     , req.files.csv_file.name
     , req.files.csv_file.size / 1024 | 0 
     , req.files.csv_file.path
     , req.body.title));
+  */
 });
 
 var port = process.env.PORT || 3000;
