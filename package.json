@@ -2,6 +2,7 @@
   "name": "importability",
   "version": "0.0.1",
   "dependencies": {
+    "node":"0.6.13",
     "express": "2.5.8",
     "jade": "0.22.0",
     "everyauth":"0.2.32",
