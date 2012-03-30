@@ -1,8 +1,11 @@
 h1= title
+h3 Importability is a simple web app which will import your Instapaper bookmarks into your existing Readability account.
+p This app was made with open-source software: node.js, express.js, and everyauth.
 - if(!everyauth.loggedIn)
   #auth
     p In order to use Importability you must authorize your Readabilty account:
-    a(href="/auth/readability") Login With Readability
+    p
+        a.btn.btn-primary.btn-large(href="/auth/readability") Login With Readability
 - else
     p Upload your exported CSV:
         form(action='/upload',method='POST',enctype="multipart/form-data")
