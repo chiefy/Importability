@@ -8,24 +8,18 @@ var express = require('express'),
     csv = require('csv'),
     https = require('https'),
     querystring = require('querystring');
-    
+
+var config = require('./config');
+
 var app = module.exports = express.createServer();
 
 everyauth.helpExpress(app);
 
 var User = { id: 1 };
-// Configuration
-
-var readability_options  = {
-  host: 'www.readability.com',
-  endpoint: '/api/rest/v1/',
-  key: "tehsuck",
-  secret: "dVJVVx2bFKtxHL3AmMJ6TQbakR4Ga4BQ",
-};
 
 everyauth.readability
-  .consumerKey(readability_options.key)
-  .consumerSecret(readability_options.secret)
+  .consumerKey(config.readability.key)
+  .consumerSecret(config.readability.secret)
   .findOrCreateUser( function(sess, accessToken, accessSecret, reader) {
     User['readability'] = reader;
     return reader;
@@ -92,7 +86,7 @@ app.get('/add/:url',function(req,res) {
         res.end();
       };
       
-      everyauth.readability.oauth.post('https://'+readability_options.host+readability_options.endpoint+'bookmarks',
+      everyauth.readability.oauth.post('https://'+config.readability.host+config.readability.endpoint+'bookmarks',
                                        req.session.auth.readability.accessToken,
                                        req.session.auth.readability.accessTokenSecret,
                                        post_data,
