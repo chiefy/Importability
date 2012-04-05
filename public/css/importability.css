@@ -1,0 +1,16 @@
+
+
+div#report table th, div#report table td {
+	width:25%;
+	margin: 0 auto;
+	text-align: center;
+}
+
+div.import-btn {
+	margin: 10px auto;
+	text-align: center;
+}
+
+div#done,div#loading {
+	display: none;
+}

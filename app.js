@@ -3,30 +3,32 @@
  */
  
 var express = require('express'),
+    redisStore = require('connect-redis')(express);  
     everyauth = require('everyauth'),
     format = require('util').format,
     csv = require('csv'),
     https = require('https'),
+    url = require('url'),
     querystring = require('querystring');
 
+
+// Basic config which includes API keys, redis info etc.
 var config = require('./config');
 
 var app = module.exports = express.createServer();
 
 everyauth.helpExpress(app);
 
-var User = { id: 1 };
+var User = { id : 1 };
 
 everyauth.readability
   .consumerKey(config.readability.key)
   .consumerSecret(config.readability.secret)
   .findOrCreateUser( function(sess, accessToken, accessSecret, reader) {
-    User['readability'] = reader;
+    User.readability = reader;
     return reader;
   })
   .redirectPath('/')
-
-everyauth.debug = false;  
 
 app.configure(function(){
   app.set('views', __dirname + '/views');
@@ -34,25 +36,48 @@ app.configure(function(){
   app.use(express.bodyParser({uploadDir:'/var/tmp'}));
   app.use(express.methodOverride());
   app.use(express.cookieParser());
-  app.use(express.session({ secret: "i love pork chops" }));
+
+  var redisUrl = process.env.REDISTOGO_URL ? url.parse(process.env.REDISTOGO_URL) : url.parse(config.redis.url);
+  var redisAuth = redisUrl.auth.split(':');
+
+  app.set('redisHost', redisUrl.hostname);
+  app.set('redisPort', redisUrl.port);
+  app.set('redisDb', redisAuth[0]);
+  app.set('redisPass', redisAuth[1]);
+  app.use(express.session(
+            {
+              cookie: { maxAge: 3600000 }, // one hour
+              secret: "i love pork chops",
+              store: new redisStore({
+                host: app.set('redisHost'),
+                port: app.set('redisPort'),
+                db: app.set('redisDb'),
+                pass: app.set('redisPass')
+              })
+            })
+        );
+  
   app.use(everyauth.middleware());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
 });
  
-app.configure('development', function(){
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+app.configure('development', function() {
+  app.use(express.errorHandler({
+    dumpExceptions: true,
+    showStack: true
+  })); 
+  everyauth.debug = true;
 });
  
 app.configure('production', function(){
   app.use(express.errorHandler()); 
+  everyauth.debug = false;  
 });
 
  
 // Routes
- 
 app.get('/', function(req, res){
-      console.log("logged in: ",req.loggedIn);
       res.render('index', {
           title: 'Importability'
       });
@@ -70,12 +95,16 @@ app.get('/import', function(req,res) {
 });
 
 app.get('/add/:url',function(req,res) {
-    if(req.loggedIn) {
-      var post_data = {
+  if(!req.loggedIn) {
+      res.redirect('/');
+  }
+
+  var post_data = {
         'url': req.params.url
-      };
-      var callback = function(error,data,apires) {
-        var resData = { result: -1 };
+  },
+  
+  callback = function(error,data,apires) {
+      var resData = { result: -1 };
         res.setHeader("Content-Type", "application/json");
         if(apires.statusCode === 202) {
           resData.result = 1;
@@ -84,16 +113,13 @@ app.get('/add/:url',function(req,res) {
         }
         res.write(JSON.stringify(resData));
         res.end();
-      };
-      
-      everyauth.readability.oauth.post('https://'+config.readability.host+config.readability.endpoint+'bookmarks',
-                                       req.session.auth.readability.accessToken,
-                                       req.session.auth.readability.accessTokenSecret,
-                                       post_data,
-                                       callback);
-    } else {
-      res.redirect('/');
-    }
+  };
+ 
+ everyauth.readability.oauth.post('https://'+config.readability.host+config.readability.endpoint+'bookmarks',
+                                  req.session.auth.readability.accessToken,
+                                  req.session.auth.readability.accessTokenSecret,
+                                  post_data,
+                                  callback);
 });
 
 app.post('/upload', function(req,res,next) {
@@ -112,13 +138,6 @@ app.post('/upload', function(req,res,next) {
     .on('error',function(error) {
       // do something
     });
-  /*
-  console.log(format('\nuploaded %s (%d Kb) to %s as %s'
-    , req.files.csv_file.name
-    , req.files.csv_file.size / 1024 | 0 
-    , req.files.csv_file.path
-    , req.body.title));
-  */
 });
 
 var port = process.env.PORT || 3000;
