@@ -1,24 +1,28 @@
-h1= title
-h3 Importability is a simple web app which will import your Instapaper bookmarks into your existing Readability account.
-p This app was made with open-source software:
-  a(href='http://nodejs.org/') node.js
-  , 
-  a(href='http://expressjs.com/') express.js
-  , 
-  a(href='https://github.com/bnoguchi/everyauth') everyauth 
-  &
-  a(href'https://github.com/wdavidw/node-csv-parser') node-csv-parser
-  .	
+
 - if(!everyauth.loggedIn)
-  #auth
-    p In order to use Importability you must authorize your Readabilty account:
-    p
-        a.btn.btn-primary.btn-large(href="/auth/readability") Login With Readability
+    p This app was made with open-source software:
+        a(href='http://nodejs.org/') node.js
+        , 
+        a(href='http://expressjs.com/') express.js
+        , 
+        a(href='https://github.com/bnoguchi/everyauth') everyauth 
+        &
+        a(href'https://github.com/wdavidw/node-csv-parser') node-csv-parser
+        .
+    #auth
+        p In order to use Importability you must authorize your Readabilty account:
+        p
+            a.btn.btn-primary.btn-large(href="/auth/readability") Login With Readability
 - else
+    div.page-header
+        h1 Import Reading List&nbsp;
+            small You will need to login to your Instapaper account and look for the "Export CSV" section in the right hand column.
+    ul.thumbnails(style='margin: 0 auto;padding:0;width:600px;')
+        li(style='margin:10px 0 20px')
+            img.thumbnail(src='/img/export_links.png')
     p Upload your exported CSV:
-        form(action='/upload',method='POST',enctype="multipart/form-data")
-            div
-                label(for='csv_file') File:
-                input(type='file',name='csv_file')
-            div
-                input(type='submit',title='upload and import')
+        form(class='well',action='/upload',method='POST',enctype="multipart/form-data")
+            label(for='csv_file') Exported CSV File: &nbsp;
+            input(type='file',name='csv_file')
+            br
+            input(class='btn btn-primary btn-large',type='submit',title='upload and import')
